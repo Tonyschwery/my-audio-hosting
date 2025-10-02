@@ -24,9 +24,15 @@ This repository contains a collection of audio files (MP3 format) with a simple 
 
 ## 🚀 Quick Start
 
-### Method 1: Using Python (Recommended)
+### Method 1: One-Click Start (Easiest!)
 
-The easiest way to preview and test the website is to use the included Python server:
+Simply run the start script:
+
+```bash
+./start.sh
+```
+
+Or manually:
 
 ```bash
 python3 preview-server.py
@@ -111,6 +117,7 @@ my-audio-hosting/
 ├── index.html              # Main web interface
 ├── preview-server.py       # Quick start server (recommended)
 ├── generate-audio-list.py  # Script to generate audio file list
+├── start.sh                # Bash quick start script
 ├── audio-files.json        # Generated list of audio files (auto-created)
 ├── README.md               # This file
 └── *.mp3                   # Your audio files
