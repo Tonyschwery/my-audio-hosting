@@ -2,6 +2,16 @@
 
 A simple web-based audio player to preview and test your audio collection.
 
+## 🎬 Preview
+
+![Audio Player Interface - Search Feature](https://github.com/user-attachments/assets/42c7ea1c-1c64-4644-b29b-72dab3dff9f3)
+
+*Search and filter your audio collection with an intuitive interface*
+
+![Audio Player Interface - Category Filter](https://github.com/user-attachments/assets/84641e65-5d1f-4cf0-8c8f-4108a11da3a4)
+
+*Filter by category to quickly find specific types of music*
+
 ## 📋 Overview
 
 This repository contains a collection of audio files (MP3 format) with a simple web interface to preview and test them. The interface provides:
