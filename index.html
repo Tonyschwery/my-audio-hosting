@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Audio Hosting - Preview & Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .filter-btn.active {
+            background: #764ba2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .audio-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .audio-item {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .audio-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .audio-item.playing {
+            border-color: #764ba2;
+            background: #f8f5ff;
+        }
+
+        .audio-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            word-break: break-word;
+            font-size: 14px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .play-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .play-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .play-btn.playing {
+            background: #764ba2;
+        }
+
+        .audio-progress {
+            flex-grow: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .audio-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .audio-time {
+            font-size: 12px;
+            color: #666;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 18px;
+        }
+
+        .current-playing {
+            background: #f8f5ff;
+            border: 2px solid #764ba2;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .current-playing.active {
+            display: block;
+        }
+
+        .current-playing h2 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .current-playing .name {
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .main-audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .main-play-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .main-play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .audio-list {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 My Audio Hosting</h1>
+        <p class="subtitle">Preview & Test Your Audio Collection</p>
+
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search for audio files...">
+
+        <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" data-filter="all">All</button>
+        </div>
+
+        <div class="stats" id="stats">
+            Loading audio files...
+        </div>
+
+        <div class="current-playing" id="currentPlaying">
+            <h2>Now Playing</h2>
+            <div class="name" id="currentName">-</div>
+            <div class="main-audio-controls">
+                <button class="main-play-btn" id="mainPlayBtn">▶</button>
+                <div class="audio-progress" id="mainProgress">
+                    <div class="audio-progress-bar" id="mainProgressBar"></div>
+                </div>
+                <span class="audio-time" id="mainTime">0:00</span>
+            </div>
+        </div>
+
+        <div class="audio-list" id="audioList">
+            <div class="no-results">Loading audio files...</div>
+        </div>
+    </div>
+
+    <script>
+        let audioFiles = [];
+        let currentAudio = null;
+        let currentPlayingElement = null;
+
+        // Fetch audio files from the directory
+        async function loadAudioFiles() {
+            try {
+                const response = await fetch('audio-files.json');
+                if (!response.ok) {
+                    // If JSON file doesn't exist, try to get file list from server
+                    throw new Error('audio-files.json not found');
+                }
+                audioFiles = await response.json();
+                initializeApp();
+            } catch (error) {
+                console.log('JSON file not found, generating file list from directory...');
+                // Fallback: manually add audio files (this will need to be updated)
+                generateFileList();
+            }
+        }
+
+        // Generate file list by scanning directory
+        function generateFileList() {
+            // This is a fallback - in a real scenario, you'd need a server-side script
+            // For now, we'll provide instructions in the console
+            console.log('Please run the generate-audio-list.py script to create audio-files.json');
+            
+            // Temporary: Show instructions to user
+            document.getElementById('audioList').innerHTML = `
+                <div class="no-results">
+                    <h3>Setup Required</h3>
+                    <p>To preview audio files, please run:</p>
+                    <pre style="background: #f0f0f0; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left;">python3 generate-audio-list.py</pre>
+                    <p>Then refresh this page.</p>
+                </div>
+            `;
+        }
+
+        function initializeApp() {
+            displayAudioFiles(audioFiles);
+            updateStats(audioFiles.length, audioFiles.length);
+            createFilterButtons();
+            setupEventListeners();
+        }
+
+        function createFilterButtons() {
+            const categories = new Set();
+            audioFiles.forEach(file => {
+                const match = file.match(/^([A-Z\-\s]+\d*)\s*-/);
+                if (match) {
+                    categories.add(match[1].trim());
+                }
+            });
+
+            const filterButtons = document.getElementById('filterButtons');
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = category;
+                btn.dataset.filter = category;
+                filterButtons.appendChild(btn);
+            });
+        }
+
+        function displayAudioFiles(files) {
+            const audioList = document.getElementById('audioList');
+            
+            if (files.length === 0) {
+                audioList.innerHTML = '<div class="no-results">No audio files found</div>';
+                return;
+            }
+
+            audioList.innerHTML = files.map((file, index) => `
+                <div class="audio-item" data-file="${file}" data-index="${index}">
+                    <div class="audio-name">${file.replace('.mp3', '')}</div>
+                    <div class="audio-controls">
+                        <button class="play-btn" data-action="play">▶</button>
+                        <div class="audio-progress">
+                            <div class="audio-progress-bar"></div>
+                        </div>
+                        <span class="audio-time">0:00</span>
+                    </div>
+                </div>
+            `).join('');
+
+            setupAudioItemListeners();
+        }
+
+        function setupAudioItemListeners() {
+            document.querySelectorAll('.audio-item').forEach(item => {
+                const playBtn = item.querySelector('.play-btn');
+                const progress = item.querySelector('.audio-progress');
+                
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const file = item.dataset.file;
+                    if (currentAudio && currentAudio.src.endsWith(file) && !currentAudio.paused) {
+                        pauseAudio();
+                    } else {
+                        playAudio(file, item);
+                    }
+                });
+
+                item.addEventListener('click', () => {
+                    const file = item.dataset.file;
+                    if (currentAudio && currentAudio.src.endsWith(file) && !currentAudio.paused) {
+                        pauseAudio();
+                    } else {
+                        playAudio(file, item);
+                    }
+                });
+
+                progress.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (currentAudio && currentAudio.src.endsWith(item.dataset.file)) {
+                        const rect = progress.getBoundingClientRect();
+                        const percent = (e.clientX - rect.left) / rect.width;
+                        currentAudio.currentTime = currentAudio.duration * percent;
+                    }
+                });
+            });
+        }
+
+        function playAudio(file, element) {
+            if (currentAudio) {
+                currentAudio.pause();
+            }
+
+            if (currentPlayingElement) {
+                currentPlayingElement.classList.remove('playing');
+                currentPlayingElement.querySelector('.play-btn').textContent = '▶';
+            }
+
+            currentAudio = new Audio(file);
+            currentPlayingElement = element;
+            
+            element.classList.add('playing');
+            element.querySelector('.play-btn').textContent = '⏸';
+            element.querySelector('.play-btn').classList.add('playing');
+
+            // Update current playing section
+            const currentPlaying = document.getElementById('currentPlaying');
+            currentPlaying.classList.add('active');
+            document.getElementById('currentName').textContent = file.replace('.mp3', '');
+            document.getElementById('mainPlayBtn').textContent = '⏸';
+
+            currentAudio.play();
+
+            currentAudio.addEventListener('timeupdate', () => {
+                const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+                element.querySelector('.audio-progress-bar').style.width = percent + '%';
+                element.querySelector('.audio-time').textContent = formatTime(currentAudio.currentTime);
+                
+                document.getElementById('mainProgressBar').style.width = percent + '%';
+                document.getElementById('mainTime').textContent = formatTime(currentAudio.currentTime);
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                element.classList.remove('playing');
+                element.querySelector('.play-btn').textContent = '▶';
+                element.querySelector('.play-btn').classList.remove('playing');
+                element.querySelector('.audio-progress-bar').style.width = '0%';
+                document.getElementById('mainPlayBtn').textContent = '▶';
+            });
+        }
+
+        function pauseAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                if (currentPlayingElement) {
+                    currentPlayingElement.querySelector('.play-btn').textContent = '▶';
+                    currentPlayingElement.querySelector('.play-btn').classList.remove('playing');
+                }
+                document.getElementById('mainPlayBtn').textContent = '▶';
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function updateStats(showing, total) {
+            document.getElementById('stats').textContent = `Showing ${showing} of ${total} audio files`;
+        }
+
+        function setupEventListeners() {
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filtered = audioFiles.filter(file => 
+                    file.toLowerCase().includes(searchTerm)
+                );
+                displayAudioFiles(filtered);
+                updateStats(filtered.length, audioFiles.length);
+            });
+
+            document.getElementById('filterButtons').addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    document.querySelectorAll('.filter-btn').forEach(btn => 
+                        btn.classList.remove('active')
+                    );
+                    e.target.classList.add('active');
+
+                    const filter = e.target.dataset.filter;
+                    const filtered = filter === 'all' 
+                        ? audioFiles 
+                        : audioFiles.filter(file => file.startsWith(filter));
+                    
+                    displayAudioFiles(filtered);
+                    updateStats(filtered.length, audioFiles.length);
+                }
+            });
+
+            document.getElementById('mainPlayBtn').addEventListener('click', () => {
+                if (currentAudio) {
+                    if (currentAudio.paused) {
+                        currentAudio.play();
+                        document.getElementById('mainPlayBtn').textContent = '⏸';
+                        if (currentPlayingElement) {
+                            currentPlayingElement.querySelector('.play-btn').textContent = '⏸';
+                        }
+                    } else {
+                        pauseAudio();
+                    }
+                }
+            });
+
+            document.getElementById('mainProgress').addEventListener('click', (e) => {
+                if (currentAudio) {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    const percent = (e.clientX - rect.left) / rect.width;
+                    currentAudio.currentTime = currentAudio.duration * percent;
+                }
+            });
+        }
+
+        // Initialize the app
+        loadAudioFiles();
+    </script>
+</body>
+</html>
